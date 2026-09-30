@@ -1,0 +1,16 @@
+# Production-oriented (future: /opt/canumpe/gradebook). Not deployed by this repo.
+#   docker compose -f compose.prod.yml up -d
+services:
+  gradebook:
+    image: ghcr.io/ulisesvar/canumpe-gradebook:${TAG:-latest}
+    build:
+      context: .
+      target: prod
+    env_file: .env
+    environment:
+      DATA_SOURCE: api
+      PORT: '3000'
+    # Bind to loopback only; the reverse proxy / tunnel reaches it from the host.
+    ports:
+      - '127.0.0.1:${PORT:-3000}:3000'
+    restart: unless-stopped

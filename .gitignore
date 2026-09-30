@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-server/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.tsbuildinfo
+# Real (non-synthetic) gradebook data must never be committed
+data/*.real.json

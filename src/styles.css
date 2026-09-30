@@ -1,0 +1,257 @@
+:root {
+  --bg: #fff;
+  --fg: #1c2024;
+  --muted: #5b6470;
+  --line: #cfd5dc;
+  --head: #eef1f4;
+  --tasks: #e8f0fb;
+  --exams: #fdf1e3;
+  --part: #e9f5ec;
+  --final: #f1ebf8;
+  --accent: #1d4ed8;
+  color-scheme: light;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 14px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+.app {
+  padding: 12px 16px;
+}
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+.subtitle {
+  margin: 2px 0 10px;
+  color: var(--muted);
+}
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-bottom: 8px;
+}
+.weights {
+  color: var(--muted);
+}
+.toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 8px 0;
+}
+input[type='search'] {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  min-width: 240px;
+}
+button {
+  font: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+.notice {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  margin: 8px 0;
+}
+.notice p,
+.notice ul {
+  margin: 0;
+}
+.notice-error {
+  border-color: #b42318;
+  background: #fef3f2;
+}
+.notice-warn {
+  border-color: #b54708;
+  background: #fffaeb;
+}
+.notice-fixture {
+  border-color: #6941c6;
+  background: #f4f3ff;
+  font-weight: 600;
+}
+.table-scroll {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid var(--line);
+}
+table.gradebook {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+}
+.gradebook th,
+.gradebook td {
+  padding: 4px 8px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  background: var(--bg);
+}
+.gradebook thead th {
+  position: sticky;
+  top: 0;
+  background: var(--head);
+  z-index: 2;
+  text-align: center;
+  font-weight: 600;
+}
+.gradebook thead tr:nth-child(2) th {
+  top: 30px;
+}
+.gradebook .sticky-1,
+.gradebook .sticky-2 {
+  position: sticky;
+  z-index: 1;
+}
+.gradebook .sticky-1 {
+  left: 0;
+  min-width: 240px;
+  text-align: left;
+}
+.gradebook .sticky-2 {
+  left: 240px;
+  min-width: 90px;
+  box-shadow: 2px 0 0 var(--line);
+}
+.gradebook thead .sticky-1,
+.gradebook thead .sticky-2 {
+  z-index: 3;
+}
+.group-tasks {
+  background: var(--tasks) !important;
+}
+.group-exams {
+  background: var(--exams) !important;
+}
+.group-part {
+  background: var(--part) !important;
+}
+.group-final {
+  background: var(--final) !important;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ungraded {
+  color: var(--muted);
+}
+.strong {
+  font-weight: 600;
+}
+.final {
+  background: var(--final) !important;
+}
+.incomplete {
+  color: #b42318;
+}
+.incomplete small {
+  color: var(--muted);
+}
+.hint {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--muted);
+}
+button.sort,
+button.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  font-weight: inherit;
+}
+button.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-align: left;
+}
+.legend {
+  color: var(--muted);
+  font-size: 12px;
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+}
+.detail {
+  background: var(--bg);
+  width: min(480px, 100%);
+  height: 100%;
+  overflow: auto;
+  padding: 16px;
+}
+.detail-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.detail h2,
+.detail h3 {
+  margin: 0 0 4px;
+}
+.detail section {
+  margin-top: 16px;
+}
+.detail-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.detail-table th,
+.detail-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 3px 6px;
+  text-align: left;
+}
+.detail-table td.num {
+  text-align: right;
+}
+.block-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  margin: 8px 0 0;
+}
+.block-summary dt {
+  color: var(--muted);
+}
+.block-summary dd {
+  margin: 0;
+  font-weight: 600;
+}
+.final-value {
+  font-size: 18px;
+  margin: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
