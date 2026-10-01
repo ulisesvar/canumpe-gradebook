@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ERROR_MESSAGES, fetchGradebook, LoadError } from './api';
 import { GradebookTable } from './components/GradebookTable';
+import { ParticipationCapture } from './components/ParticipationCapture';
 import { StudentDetail } from './components/StudentDetail';
 import { buildGradebook, type GradebookView } from './domain/buildGradebook';
-import type { ErrorCode } from './domain/contract';
+import type { ErrorCode, GradebookContract } from './domain/contract';
 import { formatWeight } from './domain/format';
 import { filterStudents, sortStudents, type SortDirection, type SortKey } from './domain/students';
 
 type State =
   | { status: 'loading' }
   | { status: 'error'; code: ErrorCode }
-  | { status: 'ready'; view: GradebookView; source: 'fixture' | 'api' };
+  | { status: 'ready'; view: GradebookView; source: 'fixture' | 'api'; data: GradebookContract };
+
+type Tab = 'grades' | 'participation';
 
 export function App() {
   const [state, setState] = useState<State>({ status: 'loading' });
@@ -19,6 +22,7 @@ export function App() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [tab, setTab] = useState<Tab>('grades');
 
   useEffect(() => {
     let cancelled = false;
@@ -30,6 +34,7 @@ export function App() {
             status: 'ready',
             view: buildGradebook(envelope.data),
             source: envelope.source,
+            data: envelope.data,
           });
         }
       })
@@ -45,6 +50,18 @@ export function App() {
       cancelled = true;
     };
   }, [attempt]);
+
+  // Reloads the gradebook in place (no loading screen, selected tab and captured values kept).
+  // Rejects if the reload fails; the caller reports it.
+  const refresh = useCallback(async () => {
+    const envelope = await fetchGradebook();
+    setState({
+      status: 'ready',
+      view: buildGradebook(envelope.data),
+      source: envelope.source,
+      data: envelope.data,
+    });
+  }, []);
 
   const view = state.status === 'ready' ? state.view : null;
   const rows = useMemo(
@@ -115,38 +132,82 @@ export function App() {
             </section>
           )}
 
-          <div className="toolbar">
-            <label>
-              Search student or account{' '}
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Name or account number"
-              />
-            </label>
-            <span aria-live="polite">
-              {rows.length} of {view.rows.length} shown
-            </span>
+          <div role="tablist" aria-label="Vistas del Gradebook" className="tabs">
+            <button
+              type="button"
+              role="tab"
+              id="tab-grades"
+              aria-selected={tab === 'grades'}
+              aria-controls="panel-grades"
+              onClick={() => setTab('grades')}
+            >
+              Calificaciones
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-participation"
+              aria-selected={tab === 'participation'}
+              aria-controls="panel-participation"
+              onClick={() => setTab('participation')}
+            >
+              Participación
+            </button>
           </div>
 
-          <GradebookTable
-            view={view}
-            rows={rows}
-            sortKey={sortKey}
-            sortDirection={sortDirection}
-            onSort={onSort}
-            onSelect={setSelectedId}
-          />
-          <p className="legend">
-            “—” = no data / not graded (never counted as 0). “0” = a real zero. Activity cells show
-            the normalised score (0–100); * = does not count toward the grade. Averages and
-            contributions come from the Academic API. Final = Tareas + Exámenes + Participación /
-            asistencia contributions, calculated by the Gradebook (not an Academic API field); with
-            any block missing it is INCOMPLETA, never renormalised.
-          </p>
+          <div
+            role="tabpanel"
+            id="panel-grades"
+            aria-labelledby="tab-grades"
+            hidden={tab !== 'grades'}
+          >
+            <div className="toolbar">
+              <label>
+                Search student or account{' '}
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Name or account number"
+                />
+              </label>
+              <span aria-live="polite">
+                {rows.length} of {view.rows.length} shown
+              </span>
+            </div>
 
-          {selected && <StudentDetail view={view} row={selected} onClose={closeDetail} />}
+            <GradebookTable
+              view={view}
+              rows={rows}
+              sortKey={sortKey}
+              sortDirection={sortDirection}
+              onSort={onSort}
+              onSelect={setSelectedId}
+            />
+            <p className="legend">
+              “—” = no data / not graded (never counted as 0). “0” = a real zero. Activity cells
+              show the normalised score (0–100); * = does not count toward the grade. Averages and
+              contributions come from the Academic API. Final = Tareas + Exámenes + Participación /
+              asistencia contributions, calculated by the Gradebook (not an Academic API field);
+              with any block missing it is INCOMPLETA, never renormalised.
+            </p>
+
+            {selected && <StudentDetail view={view} row={selected} onClose={closeDetail} />}
+          </div>
+
+          {/* Stays mounted (only hidden) so captured values survive switching tabs. */}
+          <div
+            role="tabpanel"
+            id="panel-participation"
+            aria-labelledby="tab-participation"
+            hidden={tab !== 'participation'}
+          >
+            <ParticipationCapture
+              students={state.data.students}
+              canWrite={state.source === 'api'}
+              onRecorded={refresh}
+            />
+          </div>
         </>
       )}
     </div>

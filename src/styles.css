@@ -264,3 +264,93 @@ button.link {
   font-size: 12px;
   margin: 4px 0 0;
 }
+
+/* ---- Participación (captura) ---- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.tabs button[role='tab'] {
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.tabs button[role='tab'][aria-selected='true'] {
+  background: var(--head);
+  border-color: var(--line);
+  font-weight: 600;
+}
+.participation h2 {
+  margin: 4px 0;
+  font-size: 1.15rem;
+}
+.participation-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.participation-table th,
+.participation-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 4px 8px;
+  text-align: left;
+}
+.participation-table th.num,
+.participation-table td.num {
+  text-align: right;
+}
+.participation-table .student-name {
+  font-weight: 500;
+}
+.value-picker {
+  display: inline-flex;
+  gap: 4px;
+}
+.value-picker button.value {
+  min-width: 2.4rem;
+  padding: 6px 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.value-picker button.value.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+.value-picker button.value:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.participation-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.participation-actions button.primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: #fff;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.participation-actions button.primary:disabled {
+  background: var(--muted);
+  border-color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.participation-ok {
+  border-color: #9fd3ae;
+  background: var(--part);
+}

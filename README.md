@@ -1,7 +1,9 @@
 # CANUMPE Gradebook
 
-Read-only, teacher-facing grade report for one course: every student's activities,
+Teacher-facing grade report for one course: every student's activities,
 category averages, **weighted contribution (earned / maximum)** and a calculated final.
+It is read-only except for one thing: the **Participación** tab, which records participation
+observations through the Academic API (see "Participation capture").
 
 Gradebook is a _consumer_ of the Academic API. It is not a second academic system:
 it has no database, owns no student data, and **does not access Moodle (or any Moodle
@@ -56,10 +58,34 @@ file, e.g. `data/x.real.json`, which is git-ignored) — no UI change is needed.
 | `ACADEMIC_API_TIMEOUT_MS`     | no       | Default 10000                                                   |
 | `FIXTURE_PATH`                | no       | Default `data/gradebook.fixture.json`                           |
 
+## Participation capture
+
+The **Participación** tab lists every student of the course with the current observation count, average
+and score (read from the Academic API's gradebook; nothing is averaged here) and a `[0] [1] [2] [3]` control.
+All controls start empty. **Registrar participación** records one **new** observation for each student that has
+a value selected and nothing for the others; an empty control means "no observation", and `0` is a real value that
+is sent as `0`. Recording the same student again adds another observation (it never replaces or groups the earlier
+one), so Alexander captured as 2 and later as 1 has two observations, average 1.5, score 50 — computed by the
+Academic API. After a capture the recorded controls are cleared and the table is reloaded; a student whose request
+failed keeps its selection and is named in the error message, so retrying does not record the others twice.
+
+There is no date or session selector (the Academic API stamps `observed_at`), and no edit or delete in the UI. The
+Academic API's `DELETE` remains available outside this UI. Requests are sent one student at a time; the Academic API
+has no idempotency key, so after an unconfirmed failure (timeout / error) check the observation count before retrying.
+
+Browser → backend: `POST /api/participation` with `{"student_id": <positive integer>, "value": 0|1|2|3}`.
+Backend → Academic API: `POST /admin/courses/{COURSE_ID}/students/{student_id}/participation` with `{"value": n}`,
+reusing the existing `ACADEMIC_API_BASE_URL`, `ACADEMIC_API_KEY` and `COURSE_ID` (no new configuration). In fixture mode
+the route answers `409` and the tab is disabled.
+
 ## Security model
 
 - The API key lives only in the server process. It is never sent to the browser, logged, or included in errors.
 - The browser cannot choose the upstream URL, course or credentials: `/api/gradebook` takes no input. No open proxy.
+- The only write route, `POST /api/participation`, accepts just a validated `student_id` and `value` (anything else is
+  dropped); the course, URL and key stay server-side. It refuses non-JSON bodies and browser requests that are not
+  `Sec-Fetch-Site: same-origin`, and answers no CORS headers. Like the rest of the app it relies on the access control in
+  front of the Gradebook. A test builds the production bundle and checks the API key is not in it.
 - Redirects from the Academic API are refused so the key cannot be forwarded elsewhere.
 - Responses are validated with Zod on the server and again in the browser; unexpected data is rejected, not rendered.
 - `.env` is git-ignored; fixtures contain no credentials. `/health` only reports that the process is up.
@@ -116,4 +142,4 @@ INCOMPLETA (naming the missing block). Incomplete finals sort last.
 - Categories are recognised by name; renaming one in the Academic API requires updating `BLOCK_CATEGORY_NAMES`.
 - API mode has not been run against the live API.
 - No authentication in front of the Gradebook itself; it is expected to sit behind the CANUMPE reverse proxy/tunnel access control.
-- Single course (`COURSE_ID`), read-only.
+- Single course (`COURSE_ID`). Read-only except participation capture (`POST /api/participation`).
