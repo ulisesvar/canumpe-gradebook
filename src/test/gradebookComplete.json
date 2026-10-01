@@ -1,0 +1,939 @@
+{
+  "course": {
+    "course_id": 1,
+    "name": "FIXTURE - fully assigned synthetic course (not real data)"
+  },
+  "scheme": [
+    {
+      "category_id": 1,
+      "name": "Entregables / tareas",
+      "calculation_type": "GRADE_ITEMS",
+      "weight_percent": 40.0,
+      "sort_order": 1
+    },
+    {
+      "category_id": 2,
+      "name": "Participación / asistencia",
+      "calculation_type": "GRADE_ITEMS",
+      "weight_percent": 20.0,
+      "sort_order": 2
+    },
+    {
+      "category_id": 3,
+      "name": "Exámenes",
+      "calculation_type": "GRADE_ITEMS",
+      "weight_percent": 40.0,
+      "sort_order": 3
+    }
+  ],
+  "columns": [
+    {
+      "activity_id": 101,
+      "name": "Tarea 01",
+      "activity_type": "assign",
+      "max_grade": 100.0,
+      "category_id": 1,
+      "category_name": "Entregables / tareas",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 102,
+      "name": "Tarea 02",
+      "activity_type": "assign",
+      "max_grade": 10.0,
+      "category_id": 1,
+      "category_name": "Entregables / tareas",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 103,
+      "name": "Tarea 03",
+      "activity_type": "assign",
+      "max_grade": 100.0,
+      "category_id": 1,
+      "category_name": "Entregables / tareas",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 104,
+      "name": "Tarea 04 (not counted)",
+      "activity_type": "assign",
+      "max_grade": 100.0,
+      "category_id": 1,
+      "category_name": "Entregables / tareas",
+      "counts_toward_current_grade": false
+    },
+    {
+      "activity_id": 401,
+      "name": "Participación 01",
+      "activity_type": "manual",
+      "max_grade": 100.0,
+      "category_id": 2,
+      "category_name": "Participación / asistencia",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 201,
+      "name": "Examen 1",
+      "activity_type": "quiz",
+      "max_grade": 100.0,
+      "category_id": 3,
+      "category_name": "Exámenes",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 202,
+      "name": "Examen 2",
+      "activity_type": "quiz",
+      "max_grade": 50.0,
+      "category_id": 3,
+      "category_name": "Exámenes",
+      "counts_toward_current_grade": true
+    },
+    {
+      "activity_id": 301,
+      "name": "Extra 01 (unassigned)",
+      "activity_type": "assign",
+      "max_grade": 100.0,
+      "category_id": null,
+      "category_name": null,
+      "counts_toward_current_grade": null
+    }
+  ],
+  "students": [
+    {
+      "student_id": 9001,
+      "account_number": "FX0001",
+      "first_name": "Alpha",
+      "last_name": "Fixture",
+      "full_name": "Alpha Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 10.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 90.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": 50.0,
+          "score_100": 50.0
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": 90.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 90.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 40.0,
+          "score_100": 80.0
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": 70.0,
+          "score_100": 70.0
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 96.67,
+          "contribution_points": 38.67
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": 90.0,
+          "contribution_points": 18.0
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 85.0,
+          "contribution_points": 34.0
+        }
+      ],
+      "weighted_points_earned": 90.67,
+      "evaluated_weight_percent": 100.0,
+      "current_score_100": 90.67,
+      "current_grade_10": 9.07
+    },
+    {
+      "student_id": 9002,
+      "account_number": "FX0002",
+      "first_name": "Bravo",
+      "last_name": "Fixture",
+      "full_name": "Bravo Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 0.0,
+          "score_100": 0.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 5.0,
+          "score_100": 50.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": 0.0,
+          "score_100": 0.0
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 0.0,
+          "score_100": 0.0
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 50.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": null,
+          "score_100": null
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 50.0,
+          "contribution_points": 20.0
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": 0.0,
+          "contribution_points": 0.0
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 50.0,
+          "contribution_points": 20.0
+        }
+      ],
+      "weighted_points_earned": 40.0,
+      "evaluated_weight_percent": 100.0,
+      "current_score_100": 40.0,
+      "current_grade_10": 4.0
+    },
+    {
+      "student_id": 9003,
+      "account_number": "FX0003",
+      "first_name": "Charlie",
+      "last_name": "Fixture",
+      "full_name": "Charlie Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 10.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 50.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": null,
+          "score_100": null
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 100.0,
+          "contribution_points": 40.0
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": null,
+          "contribution_points": null
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 100.0,
+          "contribution_points": 40.0
+        }
+      ],
+      "weighted_points_earned": 80.0,
+      "evaluated_weight_percent": 80.0,
+      "current_score_100": 100.0,
+      "current_grade_10": 10.0
+    },
+    {
+      "student_id": 9004,
+      "account_number": "FX0004",
+      "first_name": "Delta",
+      "last_name": "Fixture",
+      "full_name": "Delta Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 80.0,
+          "score_100": 80.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 8.0,
+          "score_100": 80.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": 80.0,
+          "score_100": 80.0
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 80.0,
+          "score_100": 80.0
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": null,
+          "score_100": null
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 80.0,
+          "contribution_points": 32.0
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": 80.0,
+          "contribution_points": 16.0
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 80.0,
+          "contribution_points": 32.0
+        }
+      ],
+      "weighted_points_earned": 80.0,
+      "evaluated_weight_percent": 100.0,
+      "current_score_100": 80.0,
+      "current_grade_10": 8.0
+    },
+    {
+      "student_id": 9005,
+      "account_number": "FX0005",
+      "first_name": "Echo",
+      "last_name": "Fixture",
+      "full_name": "Echo Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 90.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 9.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 90.0,
+          "score_100": 90.0
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": null,
+          "score_100": null
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 90.0,
+          "contribution_points": 36.0
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": 100.0,
+          "contribution_points": 20.0
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": null,
+          "contribution_points": null
+        }
+      ],
+      "weighted_points_earned": 56.0,
+      "evaluated_weight_percent": 60.0,
+      "current_score_100": 93.33,
+      "current_grade_10": 9.33
+    },
+    {
+      "student_id": 9006,
+      "account_number": "FX0006",
+      "first_name": "Foxtrot",
+      "last_name": "Fixture",
+      "full_name": "Foxtrot Fixture",
+      "grades": [
+        {
+          "activity_id": 101,
+          "name": "Tarea 01",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 102,
+          "name": "Tarea 02",
+          "activity_type": "assign",
+          "max_grade": 10.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 10.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 103,
+          "name": "Tarea 03",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 104,
+          "name": "Tarea 04 (not counted)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": 1,
+          "category_name": "Entregables / tareas",
+          "counts_toward_current_grade": false,
+          "grade": null,
+          "score_100": null
+        },
+        {
+          "activity_id": 401,
+          "name": "Participación 01",
+          "activity_type": "manual",
+          "max_grade": 100.0,
+          "category_id": 2,
+          "category_name": "Participación / asistencia",
+          "counts_toward_current_grade": true,
+          "grade": 50.0,
+          "score_100": 50.0
+        },
+        {
+          "activity_id": 201,
+          "name": "Examen 1",
+          "activity_type": "quiz",
+          "max_grade": 100.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 100.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 202,
+          "name": "Examen 2",
+          "activity_type": "quiz",
+          "max_grade": 50.0,
+          "category_id": 3,
+          "category_name": "Exámenes",
+          "counts_toward_current_grade": true,
+          "grade": 50.0,
+          "score_100": 100.0
+        },
+        {
+          "activity_id": 301,
+          "name": "Extra 01 (unassigned)",
+          "activity_type": "assign",
+          "max_grade": 100.0,
+          "category_id": null,
+          "category_name": null,
+          "counts_toward_current_grade": null,
+          "grade": 100.0,
+          "score_100": 100.0
+        }
+      ],
+      "attendance": {
+        "closed_sessions": 0,
+        "present_sessions": 0,
+        "absent_sessions": 0,
+        "score_100": null
+      },
+      "participation": {
+        "participation_count": 0,
+        "participation_average": null,
+        "participation_score_100": null
+      },
+      "attendance_participation": null,
+      "categories": [
+        {
+          "category_id": 1,
+          "name": "Entregables / tareas",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 100.0,
+          "contribution_points": 40.0
+        },
+        {
+          "category_id": 2,
+          "name": "Participación / asistencia",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 20.0,
+          "category_score_100": 50.0,
+          "contribution_points": 10.0
+        },
+        {
+          "category_id": 3,
+          "name": "Exámenes",
+          "calculation_type": "GRADE_ITEMS",
+          "weight_percent": 40.0,
+          "category_score_100": 100.0,
+          "contribution_points": 40.0
+        }
+      ],
+      "weighted_points_earned": 90.0,
+      "evaluated_weight_percent": 100.0,
+      "current_score_100": 90.0,
+      "current_grade_10": 9.0
+    }
+  ]
+}

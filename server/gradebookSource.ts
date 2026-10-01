@@ -48,14 +48,16 @@ export async function fetchFromAcademicApi(
   let response: Response;
   try {
     response = await fetchImpl(url, {
-      headers: { Authorization: `Bearer ${api.apiKey}`, Accept: 'application/json' },
-      // never follow redirects: they could carry the Authorization header elsewhere
+      headers: { 'X-API-Key': api.apiKey, Accept: 'application/json' },
+      // never follow redirects: they could carry the X-API-Key header elsewhere
       redirect: 'error',
       signal: AbortSignal.timeout(api.timeoutMs),
     });
   } catch {
     throw new GradebookError('api_unavailable', 502, 'The Academic API did not respond.');
   }
+  // The Academic API reports failures as {"detail": "..."}; only the status is used,
+  // so upstream text is never forwarded to the browser.
   if (response.status === 401) {
     throw new GradebookError('unauthorized', 502, 'The Academic API rejected the API key.');
   }
@@ -70,6 +72,7 @@ export async function fetchFromAcademicApi(
     throw new GradebookError('course_not_found', 404, 'The course was not found.');
   }
   if (!response.ok) {
+    console.error(`Academic API returned HTTP ${response.status}`);
     throw new GradebookError('api_unavailable', 502, 'The Academic API returned an error.');
   }
   let payload: unknown;

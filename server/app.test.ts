@@ -34,6 +34,7 @@ describe('GET /api/gradebook (fixture mode)', () => {
     expect(res.status).toBe(200);
     expect(res.body.source).toBe('fixture');
     expect(res.body.data.students).toHaveLength(fixture.students.length);
+    expect(res.body.data.scheme).toHaveLength(3);
     expect(fetchImpl).not.toHaveBeenCalled();
   });
   it('reports a missing fixture as config_error', async () => {
@@ -54,7 +55,8 @@ describe('GET /api/gradebook (api mode)', () => {
     expect(res.body.source).toBe('api');
     const [url, init] = fetchImpl.mock.calls[0]!;
     expect(url).toBe('https://academic.invalid/admin/courses/42/gradebook');
-    expect(init.headers.Authorization).toBe(`Bearer ${SECRET}`);
+    expect(init.headers['X-API-Key']).toBe(SECRET);
+    expect(init.headers.Authorization).toBeUndefined();
     expect(JSON.stringify(res.body)).not.toContain(SECRET);
     expect(JSON.stringify(res.headers)).not.toContain(SECRET);
   });
@@ -63,9 +65,9 @@ describe('GET /api/gradebook (api mode)', () => {
     const fetchImpl = vi.fn().mockResolvedValue(json(fixture));
     await request(createApp(config, { fetchImpl }))
       .get('/api/gradebook?course_id=1&url=http://evil.test')
-      .set('Authorization', 'Bearer attacker');
+      .set('X-API-Key', 'attacker');
     expect(fetchImpl.mock.calls[0]![0]).toBe('https://academic.invalid/admin/courses/42/gradebook');
-    expect(fetchImpl.mock.calls[0]![1].headers.Authorization).toBe(`Bearer ${SECRET}`);
+    expect(fetchImpl.mock.calls[0]![1].headers['X-API-Key']).toBe(SECRET);
   });
 
   it.each([
@@ -73,12 +75,16 @@ describe('GET /api/gradebook (api mode)', () => {
     [403, 502, 'forbidden'],
     [404, 404, 'course_not_found'],
     [500, 502, 'api_unavailable'],
-  ])('maps upstream %i to %i %s', async (upstream, status, error) => {
-    const fetchImpl = vi.fn().mockResolvedValue(json({ error: 'x' }, upstream));
+  ])('maps upstream %i ({detail} body) to %i %s', async (upstream, status, error) => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(json({ detail: `upstream says ${SECRET} is bad` }, upstream));
     const res = await request(createApp(config, { fetchImpl })).get('/api/gradebook');
     expect(res.status).toBe(status);
     expect(res.body.error).toBe(error);
     expect(JSON.stringify(res.body)).not.toContain(SECRET);
+    expect(JSON.stringify(res.body)).not.toContain('upstream says'); // detail is not forwarded
   });
 
   it('maps network failure to api_unavailable', async () => {

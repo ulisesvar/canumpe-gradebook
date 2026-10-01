@@ -3,14 +3,14 @@
 Read-only, teacher-facing grade report for one course: every student's activities,
 category averages, **weighted contribution (earned / maximum)** and a calculated final.
 
-Gradebook is a *consumer* of the Academic API. It is not a second academic system:
+Gradebook is a _consumer_ of the Academic API. It is not a second academic system:
 it has no database, owns no student data, and **does not access Moodle (or any Moodle
 database) directly**.
 
 ```
 Moodle -> Moodle Sync -> Academic Database -> Academic API -> CANUMPE Gradebook -> Teacher browser
 
-Browser --HTTP--> Gradebook (Express) --Bearer key, server-side--> Academic API
+Browser --HTTP--> Gradebook (Express) --X-API-Key, server-side--> Academic API
    (no key)        GET /api/gradebook     GET {base}/admin/courses/{COURSE_ID}/gradebook
 ```
 
@@ -35,27 +35,26 @@ Run quality gates inside the container:
 
 ## Data sources
 
-| `DATA_SOURCE` | Behaviour |
-|---|---|
+| `DATA_SOURCE`       | Behaviour                                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `fixture` (default) | `GET /api/gradebook` returns `data/gradebook.fixture.json`. No credentials, no network. The UI shows a "FIXTURE MODE" banner. |
-| `api` | `GET /api/gradebook` calls the Academic API and returns the validated response. |
+| `api`               | `GET /api/gradebook` calls the Academic API and returns the validated response.                                               |
 
-The fixture is **synthetic test data** (course "FIXTURE - synthetic test course"), shaped like the
-documented contract. To use real data offline, replace its contents (or point `FIXTURE_PATH` at another
+The fixture is **synthetic test data** with the real course's scheme and assignment state (only Tarea 01 assigned, no participation); a fully assigned variant lives in `src/test/` for tests. To use real data offline, replace its contents (or point `FIXTURE_PATH` at another
 file, e.g. `data/x.real.json`, which is git-ignored) — no UI change is needed.
 
 ### Environment variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATA_SOURCE` | no | `fixture` (default) or `api` |
-| `PORT` | no | Listen port (default 3000) |
-| `ACADEMIC_API_BASE_URL` | api mode | e.g. `https://academic.example` (no assumed production URL) |
-| `ACADEMIC_API_KEY` | api mode | Admin API key. Server-side only; sent as `Authorization: Bearer <key>` |
-| `COURSE_ID` | api mode | Numeric course id |
-| `ACADEMIC_API_GRADEBOOK_PATH` | no | Default `/admin/courses/{course_id}/gradebook` |
-| `ACADEMIC_API_TIMEOUT_MS` | no | Default 10000 |
-| `FIXTURE_PATH` | no | Default `data/gradebook.fixture.json` |
+| Variable                      | Required | Description                                                     |
+| ----------------------------- | -------- | --------------------------------------------------------------- |
+| `DATA_SOURCE`                 | no       | `fixture` (default) or `api`                                    |
+| `PORT`                        | no       | Listen port (default 3000)                                      |
+| `ACADEMIC_API_BASE_URL`       | api mode | e.g. `https://academic.example` (no assumed production URL)     |
+| `ACADEMIC_API_KEY`            | api mode | Admin API key. Server-side only; sent as the `X-API-Key` header |
+| `COURSE_ID`                   | api mode | Numeric course id                                               |
+| `ACADEMIC_API_GRADEBOOK_PATH` | no       | Default `/admin/courses/{course_id}/gradebook`                  |
+| `ACADEMIC_API_TIMEOUT_MS`     | no       | Default 10000                                                   |
+| `FIXTURE_PATH`                | no       | Default `data/gradebook.fixture.json`                           |
 
 ## Security model
 
@@ -67,27 +66,39 @@ file, e.g. `data/x.real.json`, which is git-ignored) — no UI change is needed.
 
 ## Academic API dependency
 
-Endpoint: `GET /admin/courses/{course_id}/gradebook` (admin key). All assumed field names are in **one
-file**: [`src/domain/contract.ts`](src/domain/contract.ts). Reconcile it with the live endpoint the first time
-API mode is run. Current assumptions (the local Academic API repo does not contain this endpoint yet):
+Endpoint: `GET /admin/courses/{course_id}/gradebook` (no `/api/v1` prefix), header `X-API-Key: <admin key>`;
+`{course_id}` is the academic DB id (not the Moodle id). Errors are `{"detail": "..."}` (401 bad key, 403 not an
+admin key, 404 course not found); Gradebook maps them by status and never forwards the text.
 
-- `course{course_id, short_name, full_name}`, `columns[{item_id, name, activity_type}]`
-- `students[{student_id, account_number, full_name, grades[], evaluation}]`, `grades` aligned by index to `columns`, values already normalised 0-100 or `null`
-- `evaluation.categories[{code, name, weight_percent, score_100, contribution}]` with codes `tasks`, `exams`, `attendance_participation` (mapped in [`buildGradebook.ts`](src/domain/buildGradebook.ts))
-- Bearer authentication, as in the existing Academic API.
+The contract was taken from `canumpe-academic-platform` v0.2.1 (`app/api/schemas/gradebook.py`) and lives in one
+file, [`src/domain/contract.ts`](src/domain/contract.ts): `course{course_id,name}`, `scheme[]`, `columns[]`,
+`students[]` (`grades[]` = column fields + `grade` raw / `score_100` normalised, `categories[]`, `attendance`,
+`participation`, `attendance_participation`, `current_score_100`, `current_grade_10`, ...). The API has **no final grade**.
 
 ## Grade calculation rules
 
-- `assign` -> **Tareas**, `quiz` -> **Exámenes** (by activity type, not by category assignment). Other types are listed as "Other / unclassified", excluded from weighted blocks, and reported in Diagnostics.
-- Block average = mean of **non-null** grades. Contribution = `average * weight / 100`, shown as `earned / max` (e.g. `38.00 / 40`).
-- **Participación / asistencia** is one block; its score comes from the API's combined category (the internal attendance/participation split stays inside the Academic API).
-- Weights come from the API evaluation. If they differ from 40/40/20 (or don't add to 100, or a category is missing) the actual values are displayed and a diagnostic is shown.
-- **CALIFICACIÓN FINAL** = tasks + exams + participation contributions. It is calculated by Gradebook; the Academic API has no final-grade field (`current_score_100` is not used as one).
+- **Weights** come from `scheme[].weight_percent`. The three blocks are identified from `scheme[]` **by category name**
+  (`BLOCK_CATEGORY_NAMES` in [`buildGradebook.ts`](src/domain/buildGradebook.ts)): "Entregables / tareas" (Tareas),
+  "Participación / asistencia" and "Exámenes". `calculation_type` is **not** used (in the real course the participation
+  category is `GRADE_ITEMS`). Once resolved, everything uses `category_id`. Missing or ambiguous → diagnostic and INCOMPLETA finals.
+  Weights other than 40/40/20 are displayed as configured and flagged.
+- **Membership** is the API's `category_id`, never `activity_type`. Items with `counts_toward_current_grade=false` stay
+  visible (marked `*`) but the API excludes them from the category score. Unassigned items (or items in other categories)
+  are shown under "Other / unassigned" and never affect the final.
+- Activity cells show `score_100` (raw `grade` and `max_grade` in the tooltip); raw grades are never averaged.
+- Block **average** = `categories[].category_score_100` and **contribution** = `contribution_points` from the API
+  (not recomputed; an inconsistency with score × weight / 100 is diagnosed). Shown as `38.67 / 40`.
+- **Participación / asistencia** is one block (the internal attendance/participation split is not shown in the report).
+- **CALIFICACIÓN FINAL** = tasks + exams + participation contributions, calculated by Gradebook. If **any** of the three
+  is null the final is **INCOMPLETA**: nothing is renormalised and nothing becomes 0. `current_score_100` /
+  `current_grade_10` are renormalised by the API over evaluated categories and are **not** used as the final
+  (the student detail shows them for reference only).
 
 ### NULL semantics
 
-`null` = not graded, **never 0**. Shown as `—`; a real zero shows `0`. A block with no graded activity has no
-average/contribution, and the final becomes *Incomplete* (naming the missing block) rather than being computed with a zero. Incomplete finals sort last.
+`null` = no data / not graded, **never 0**. Shown as `—`; a real zero shows `0`. E.g. `participation_score_100 = null`
+means no participation observations have been entered yet, not zero participation. A null block makes the final
+INCOMPLETA (naming the missing block). Incomplete finals sort last.
 
 ## Tests
 
@@ -102,6 +113,7 @@ average/contribution, and the final becomes *Incomplete* (naming the missing blo
 
 ## Known limitations
 
-- The live gradebook field names are assumed (see above) until verified against the real endpoint.
+- Categories are recognised by name; renaming one in the Academic API requires updating `BLOCK_CATEGORY_NAMES`.
+- API mode has not been run against the live API.
 - No authentication in front of the Gradebook itself; it is expected to sit behind the CANUMPE reverse proxy/tunnel access control.
 - Single course (`COURSE_ID`), read-only.

@@ -1,4 +1,4 @@
-import fixture from '../../data/gradebook.fixture.json';
+import fixture from '../test/gradebookComplete.json';
 import { buildGradebook } from './buildGradebook';
 import { gradebookSchema } from './contract';
 import { filterStudents, sortStudents } from './students';
@@ -22,7 +22,7 @@ describe('filterStudents', () => {
 describe('sortStudents', () => {
   it('sorts alphabetically by name', () => {
     expect(names(sortStudents(rows, 'name', 'asc'))[0]).toBe('Alpha');
-    expect(names(sortStudents(rows, 'name', 'desc'))[0]).toBe('Golf');
+    expect(names(sortStudents(rows, 'name', 'desc'))[0]).toBe('Foxtrot');
   });
   it('sorts by account', () => {
     expect(names(sortStudents([...rows].reverse(), 'account', 'asc'))[0]).toBe('Alpha');
@@ -30,10 +30,7 @@ describe('sortStudents', () => {
   it('sorts by final and keeps incomplete last in both directions', () => {
     const desc = sortStudents(rows, 'final', 'desc');
     const asc = sortStudents(rows, 'final', 'asc');
-    expect(names(desc).slice(0, 2)).toEqual(['Charlie', 'Alpha']);
-    expect(names(asc).slice(0, 2)).toEqual(['Bravo', 'Delta']);
-    for (const sorted of [desc, asc]) {
-      expect(sorted.slice(-3).every((r) => r.finalGrade === null)).toBe(true);
-    }
+    expect(names(desc)).toEqual(['Alpha', 'Foxtrot', 'Delta', 'Bravo', 'Charlie', 'Echo']);
+    expect(names(asc)).toEqual(['Bravo', 'Delta', 'Foxtrot', 'Alpha', 'Charlie', 'Echo']);
   });
 });

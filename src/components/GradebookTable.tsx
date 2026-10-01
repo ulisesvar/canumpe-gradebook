@@ -1,5 +1,9 @@
-import type { GradebookView, StudentGradeRow } from '../domain/buildGradebook';
-import type { Grade } from '../domain/calc';
+import type {
+  ActivityColumn,
+  ActivityGrade,
+  GradebookView,
+  StudentGradeRow,
+} from '../domain/buildGradebook';
 import { formatContribution, formatGrade, formatScore, NOT_GRADED } from '../domain/format';
 import type { SortDirection, SortKey } from '../domain/students';
 import { FinalValue } from './FinalCell';
@@ -13,18 +17,47 @@ interface Props {
   onSelect: (studentId: number) => void;
 }
 
-function GradeCell({ grade, label }: { grade: Grade; label: string }) {
-  return grade === null ? (
-    <td className="num ungraded" title={`${label}: not graded`}>
-      <span aria-label="not graded">{NOT_GRADED}</span>
+/** Shows the normalised score_100 (never the raw grade); null is "—", 0 is "0". */
+function GradeCell({ activity }: { activity: ActivityGrade }) {
+  const { column, score100, grade } = activity;
+  const excluded = column.counts === false;
+  const className = ['num', score100 === null ? 'ungraded' : '', excluded ? 'excluded' : '']
+    .filter(Boolean)
+    .join(' ');
+  const detail =
+    grade === null
+      ? `${column.name}: not graded`
+      : `${column.name}: ${formatGrade(grade)} / ${formatGrade(column.maxGrade)}`;
+  return (
+    <td
+      className={className}
+      title={excluded ? `${detail} (does not count toward the grade)` : detail}
+    >
+      {score100 === null ? (
+        <span aria-label="not graded">{NOT_GRADED}</span>
+      ) : (
+        formatGrade(score100)
+      )}
     </td>
-  ) : (
-    <td className="num">{formatGrade(grade)}</td>
+  );
+}
+
+function ActivityHeader({ column }: { column: ActivityColumn }) {
+  const note = column.counts === false ? ' — does not count toward the grade' : '';
+  return (
+    <th
+      scope="col"
+      className={column.counts === false ? 'excluded' : undefined}
+      title={`${column.name} (max ${formatGrade(column.maxGrade)}${column.activityType ? `, ${column.activityType}` : ''})${note}`}
+    >
+      {column.name}
+      {column.counts === false ? ' *' : ''}
+    </th>
   );
 }
 
 export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onSelect }: Props) {
-  const { tasks, exams, unclassified } = view.columns;
+  const { tasks, exams, participation, unclassified } = view.columns;
   const ariaSort = (key: SortKey) =>
     sortKey === key ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none';
   const SortButton = ({ k, children }: { k: SortKey; children: string }) => (
@@ -54,12 +87,12 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
             <th colSpan={examSpan} scope="colgroup" className="group group-exams">
               Exámenes ({view.weights.exams ?? NOT_GRADED}%)
             </th>
-            <th colSpan={2} scope="colgroup" className="group group-part">
+            <th colSpan={participation.length + 2} scope="colgroup" className="group group-part">
               Participación / asistencia ({view.weights.participation ?? NOT_GRADED}%)
             </th>
             {unclassified.length > 0 && (
               <th colSpan={unclassified.length} scope="colgroup" className="group group-other">
-                Other / unclassified (not weighted)
+                Other / unassigned (not in final)
               </th>
             )}
             <th rowSpan={2} scope="col" className="group group-final" aria-sort={ariaSort('final')}>
@@ -69,25 +102,22 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
           </tr>
           <tr>
             {tasks.map((c) => (
-              <th key={c.itemId} scope="col" title={c.name}>
-                {c.name}
-              </th>
+              <ActivityHeader key={c.activityId} column={c} />
             ))}
             <th scope="col">Tasks average</th>
             <th scope="col">Tasks contribution</th>
             {exams.map((c) => (
-              <th key={c.itemId} scope="col" title={c.name}>
-                {c.name}
-              </th>
+              <ActivityHeader key={c.activityId} column={c} />
             ))}
             <th scope="col">Exams average</th>
             <th scope="col">Exams contribution</th>
+            {participation.map((c) => (
+              <ActivityHeader key={c.activityId} column={c} />
+            ))}
             <th scope="col">Average</th>
             <th scope="col">Contribution</th>
             {unclassified.map((c) => (
-              <th key={c.itemId} scope="col" title={`${c.name} (type: ${c.activityType})`}>
-                {c.name}
-              </th>
+              <ActivityHeader key={c.activityId} column={c} />
             ))}
           </tr>
         </thead>
@@ -106,25 +136,28 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
               </th>
               <td className="sticky-2">{row.accountNumber}</td>
               {row.tasks.activities.map((a) => (
-                <GradeCell key={a.column.itemId} grade={a.grade} label={a.column.name} />
+                <GradeCell key={a.column.activityId} activity={a} />
               ))}
               <td className="num strong">{formatScore(row.tasks.average)}</td>
               <td className="num strong">
                 {formatContribution(row.tasks.contribution, row.tasks.weight)}
               </td>
               {row.exams.activities.map((a) => (
-                <GradeCell key={a.column.itemId} grade={a.grade} label={a.column.name} />
+                <GradeCell key={a.column.activityId} activity={a} />
               ))}
               <td className="num strong">{formatScore(row.exams.average)}</td>
               <td className="num strong">
                 {formatContribution(row.exams.contribution, row.exams.weight)}
               </td>
+              {row.participation.activities.map((a) => (
+                <GradeCell key={a.column.activityId} activity={a} />
+              ))}
               <td className="num strong">{formatScore(row.participation.average)}</td>
               <td className="num strong">
                 {formatContribution(row.participation.contribution, row.participation.weight)}
               </td>
               {row.unclassified.map((a) => (
-                <GradeCell key={a.column.itemId} grade={a.grade} label={a.column.name} />
+                <GradeCell key={a.column.activityId} activity={a} />
               ))}
               <td className="num final">
                 <FinalValue row={row} />
