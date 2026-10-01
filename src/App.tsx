@@ -70,7 +70,7 @@ export function App() {
         <h1>CANUMPE Gradebook</h1>
         {view && (
           <p className="subtitle">
-            {view.course.full_name} / {view.course.short_name}
+            {view.course.name} (course {view.course.course_id})
           </p>
         )}
       </header>
@@ -139,9 +139,11 @@ export function App() {
             onSelect={setSelectedId}
           />
           <p className="legend">
-            “—” = not graded (never counted as 0). “0” = a real grade of zero. Final = Tareas +
-            Exámenes + Participación / asistencia contributions, calculated by the Gradebook (not an
-            Academic API field).
+            “—” = no data / not graded (never counted as 0). “0” = a real zero. Activity cells show
+            the normalised score (0–100); * = does not count toward the grade. Averages and
+            contributions come from the Academic API. Final = Tareas + Exámenes + Participación /
+            asistencia contributions, calculated by the Gradebook (not an Academic API field); with
+            any block missing it is INCOMPLETA, never renormalised.
           </p>
 
           {selected && <StudentDetail view={view} row={selected} onClose={closeDetail} />}

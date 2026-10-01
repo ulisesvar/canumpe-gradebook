@@ -255,3 +255,12 @@ button.link {
   overflow: hidden;
   clip: rect(0 0 0 0);
 }
+.excluded {
+  color: var(--muted);
+  font-style: italic;
+}
+.note {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 4px 0 0;
+}

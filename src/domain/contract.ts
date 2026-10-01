@@ -1,75 +1,130 @@
 import { z } from 'zod';
 
 /**
- * Runtime schema for GET /admin/courses/{course_id}/gradebook.
+ * Runtime schema for the Academic API's GET /admin/courses/{course_id}/gradebook
+ * (canumpe-academic-platform v0.2.1, app/api/schemas/gradebook.py).
  *
- * This is the ONLY place that knows the Academic API field names. The exact
- * field names below follow the documented shape (course / columns / students,
- * per-student grades aligned to columns, evaluation with categories) and must
- * be reconciled with the live endpoint once it is reachable.
- *
- * Grades are already normalised to 0-100 by the Academic API; null = not graded.
+ * null always means "not calculable / not graded" (never 0). `grade` is on the
+ * activity's own scale (max_grade); `score_100` is the normalised percentage.
+ * The API exposes NO final grade. Unknown extra fields are ignored.
  */
-const score = z.number().finite().min(0);
-const weight = z.number().finite().min(0).max(100);
+const num = z.number().finite();
+const id = z.number().int();
 
-export const evaluationCategorySchema = z.object({
-  code: z.string().min(1),
+export const calculationTypes = ['GRADE_ITEMS', 'ATTENDANCE_PARTICIPATION'] as const;
+
+const schemeEntrySchema = z.object({
+  category_id: id,
   name: z.string(),
-  weight_percent: weight,
-  score_100: score.nullable(),
-  contribution: z.number().finite().nullable(),
+  calculation_type: z.string(),
+  weight_percent: num,
+  sort_order: z.number().int(),
+});
+
+const columnShape = {
+  activity_id: id,
+  name: z.string(),
+  activity_type: z.string().nullable(),
+  max_grade: num,
+  category_id: id.nullable(),
+  category_name: z.string().nullable(),
+  counts_toward_current_grade: z.boolean().nullable(),
+};
+const columnSchema = z.object(columnShape);
+const gradeCellSchema = z.object({
+  ...columnShape,
+  grade: num.nullable(),
+  score_100: num.nullable(),
+});
+
+const categoryResultSchema = z.object({
+  category_id: id,
+  name: z.string(),
+  calculation_type: z.string(),
+  weight_percent: num,
+  category_score_100: num.nullable(),
+  contribution_points: num.nullable(),
+});
+
+const studentSchema = z.object({
+  student_id: id,
+  account_number: z.string(),
+  first_name: z.string(),
+  last_name: z.string(),
+  full_name: z.string(),
+  grades: z.array(gradeCellSchema),
+  attendance: z.object({
+    closed_sessions: z.number().int(),
+    present_sessions: z.number().int(),
+    absent_sessions: z.number().int(),
+    score_100: num.nullable(),
+  }),
+  participation: z.object({
+    participation_count: z.number().int(),
+    participation_average: num.nullable(),
+    participation_score_100: num.nullable(),
+  }),
+  // present only when the course has an ATTENDANCE_PARTICIPATION category; its
+  // internal 33/67 build-up is intentionally not modelled (not shown in the report)
+  attendance_participation: z.object({ category_score_100: num.nullable() }).nullable(),
+  categories: z.array(categoryResultSchema),
+  weighted_points_earned: num,
+  evaluated_weight_percent: num,
+  current_score_100: num.nullable(),
+  current_grade_10: num.nullable(),
 });
 
 export const gradebookSchema = z
   .object({
-    course: z.object({
-      course_id: z.number().int(),
-      short_name: z.string(),
-      full_name: z.string(),
-    }),
-    columns: z.array(
-      z.object({
-        item_id: z.number().int(),
-        name: z.string(),
-        activity_type: z.string().min(1),
-      }),
-    ),
-    students: z.array(
-      z.object({
-        student_id: z.number().int(),
-        account_number: z.string(),
-        full_name: z.string(),
-        grades: z.array(score.nullable()),
-        evaluation: z.object({
-          categories: z.array(evaluationCategorySchema),
-          current_score_100: score.nullable(),
-          current_grade_10: z.number().finite().nullable(),
-        }),
-      }),
-    ),
+    course: z.object({ course_id: id, name: z.string() }),
+    scheme: z.array(schemeEntrySchema),
+    columns: z.array(columnSchema),
+    students: z.array(studentSchema),
   })
   .superRefine((data, ctx) => {
-    const itemIds = new Set<number>();
-    for (const column of data.columns) {
-      if (itemIds.has(column.item_id)) {
-        ctx.addIssue({ code: 'custom', message: `Duplicate column item_id ${column.item_id}` });
+    const unique = (values: number[], label: string) => {
+      if (new Set(values).size !== values.length) {
+        ctx.addIssue({ code: 'custom', message: `Duplicate ${label}` });
       }
-      itemIds.add(column.item_id);
-    }
-    const studentIds = new Set<number>();
+    };
+    unique(
+      data.scheme.map((s) => s.category_id),
+      'scheme category_id',
+    );
+    unique(
+      data.columns.map((c) => c.activity_id),
+      'column activity_id',
+    );
+    unique(
+      data.students.map((s) => s.student_id),
+      'student_id',
+    );
     data.students.forEach((student, i) => {
-      if (studentIds.has(student.student_id)) {
-        ctx.addIssue({ code: 'custom', message: `Duplicate student_id ${student.student_id}` });
-      }
-      studentIds.add(student.student_id);
+      const path = ['students', i, 'grades'];
       if (student.grades.length !== data.columns.length) {
         ctx.addIssue({
           code: 'custom',
-          path: ['students', i, 'grades'],
-          message: `grades has ${student.grades.length} entries but there are ${data.columns.length} columns`,
+          path,
+          message: `grades has ${student.grades.length} cells but there are ${data.columns.length} columns`,
         });
+        return;
       }
+      student.grades.forEach((cell, j) => {
+        if (cell.activity_id !== data.columns[j]!.activity_id) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [...path, j],
+            message: 'grade cell not aligned with columns',
+          });
+        }
+        if (cell.grade === null && cell.score_100 !== null) {
+          ctx.addIssue({
+            code: 'custom',
+            path: [...path, j],
+            message: 'score_100 set but grade is null',
+          });
+        }
+      });
     });
   });
 

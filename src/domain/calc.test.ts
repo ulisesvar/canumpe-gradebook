@@ -1,42 +1,18 @@
-import { calculateAverage, calculateContribution, calculateFinalGrade } from './calc';
-
-describe('calculateAverage', () => {
-  it('excludes null from the average', () => {
-    expect(calculateAverage([100, 80, null])).toBe(90);
-  });
-  it('retains zero as a real grade', () => {
-    expect(calculateAverage([100, 0])).toBe(50);
-    expect(calculateAverage([0])).toBe(0);
-  });
-  it('is null when nothing is graded', () => {
-    expect(calculateAverage([null, null])).toBeNull();
-    expect(calculateAverage([])).toBeNull();
-  });
-});
-
-describe('calculateContribution', () => {
-  it('computes average * weight / 100', () => {
-    expect(calculateContribution(95, 40)).toBe(38);
-    expect(calculateContribution(50, 40)).toBe(20);
-    expect(calculateContribution(85, 20)).toBeCloseTo(17);
-  });
-  it('keeps a zero average as zero contribution', () => {
-    expect(calculateContribution(0, 40)).toBe(0);
-  });
-  it('is null when average or weight is unavailable', () => {
-    expect(calculateContribution(null, 40)).toBeNull();
-    expect(calculateContribution(90, null)).toBeNull();
-  });
-});
+import { calculateFinalGrade } from './calc';
 
 describe('calculateFinalGrade', () => {
-  it('sums the contributions', () => {
+  it('sums the three contributions', () => {
+    expect(calculateFinalGrade(36, 32, 17)).toBe(85);
     expect(calculateFinalGrade(36, 34, 18)).toBe(88);
   });
-  it('accepts zero contributions', () => {
+  it('avoids float noise on API-rounded contributions', () => {
+    expect(calculateFinalGrade(38.67, 34, 18.22)).toBe(90.89);
+  });
+  it('accepts real zero contributions', () => {
     expect(calculateFinalGrade(0, 0, 0)).toBe(0);
   });
-  it('is null (never zero-filled) when any block is missing', () => {
+  it('is null (INCOMPLETA) when any block is missing; never zero-filled or renormalised', () => {
     expect(calculateFinalGrade(36, null, 18)).toBeNull();
+    expect(calculateFinalGrade(null, null, null)).toBeNull();
   });
 });

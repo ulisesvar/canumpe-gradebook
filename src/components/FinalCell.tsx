@@ -8,8 +8,8 @@ export function finalMissingText(row: StudentGradeRow): string {
 export function FinalValue({ row }: { row: StudentGradeRow }) {
   if (row.finalGrade !== null) return <strong>{formatScore(row.finalGrade)}</strong>;
   return (
-    <span className="incomplete" title={`Missing: ${finalMissingText(row)}`}>
-      <strong>—</strong> Incomplete
+    <span className="incomplete" title={`Incompleta. Falta: ${finalMissingText(row)}`}>
+      <strong>—</strong> INCOMPLETA
       <small> (falta: {finalMissingText(row)})</small>
     </span>
   );

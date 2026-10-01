@@ -25,7 +25,8 @@ export function sortStudents(
   direction: SortDirection,
 ): StudentGradeRow[] {
   const sign = direction === 'asc' ? 1 : -1;
-  const byName = (a: StudentGradeRow, b: StudentGradeRow) => compareText(a.fullName, b.fullName);
+  const byName = (a: StudentGradeRow, b: StudentGradeRow) =>
+    compareText(a.lastName, b.lastName) || compareText(a.firstName, b.firstName);
   return [...rows].sort((a, b) => {
     if (key === 'name') return sign * byName(a, b);
     if (key === 'account')
