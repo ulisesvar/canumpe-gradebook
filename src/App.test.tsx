@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import real from '../data/gradebook.fixture.json';
 import complete from './test/gradebookComplete.json';
 import { App } from './App';
+import { compactActivityLabel } from './domain/format';
 
 const stubGradebook = (data: unknown) =>
   vi.stubGlobal(
@@ -40,9 +41,9 @@ describe('App', () => {
     expect(screen.getByText('Exams: 2')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Tarea 03' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Examen 2' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('columnheader', { name: /Tarea 04 \(not counted\) \*/ }),
-    ).toBeInTheDocument();
+    // compact label; the original activity name stays in the tooltip
+    const excluded = screen.getByRole('columnheader', { name: 'Tarea 04 *' });
+    expect(excluded).toHaveAttribute('title', expect.stringContaining('Tarea 04 (not counted)'));
     expect(
       screen.getAllByRole('columnheader', { name: /Participación \/ asistencia/ }),
     ).toHaveLength(1);
@@ -155,7 +156,7 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await screen.findByRole('table');
-    await user.click(screen.getByRole('button', { name: /Alpha Fixture/ }));
+    await user.click(screen.getByRole('button', { name: /^Alpha Fixture$/ }));
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByText(/Examen 1:\s*85 \/ 100/)).toBeInTheDocument();
     expect(
@@ -198,7 +199,7 @@ describe('App', () => {
     const user = userEvent.setup();
     render(<App />);
     await screen.findByRole('table');
-    await user.click(screen.getByRole('button', { name: /Charlie Fixture/ }));
+    await user.click(screen.getByRole('button', { name: /^Charlie Fixture$/ }));
     const dialog = screen.getByRole('dialog');
     expect(within(dialog).getByText('Account: FX0003')).toBeInTheDocument();
     expect(within(dialog).getAllByText('40.00 / 40')).toHaveLength(2);
@@ -230,5 +231,83 @@ describe('App', () => {
     );
     render(<App />);
     expect(await screen.findByRole('alert')).toHaveTextContent('unexpected format');
+  });
+
+  describe('student focus', () => {
+    const focusButton = (name: string) =>
+      screen.getByRole('button', { name: `Focus on ${name} Fixture` });
+    const blurredNames = () =>
+      bodyRows()
+        .filter((r) => r.classList.contains('blurred'))
+        .map((r) => within(r).getAllByRole('button')[0]!.textContent);
+
+    it('starts with nobody focused and does not blur column headers', async () => {
+      render(<App />);
+      await screen.findByRole('table');
+      expect(blurredNames()).toEqual([]);
+      const user = userEvent.setup();
+      await user.click(focusButton('Bravo'));
+      const thead = screen.getByRole('table').querySelector('thead')!;
+      expect(thead.querySelectorAll('.blurred')).toHaveLength(0);
+      expect(thead.closest('.blurred')).toBeNull();
+    });
+
+    it('blurs every other row, toggles off, and moves between students', async () => {
+      const user = userEvent.setup();
+      render(<App />);
+      await screen.findByRole('table');
+      await user.click(focusButton('Bravo'));
+      expect(row('Bravo')).not.toHaveClass('blurred');
+      expect(bodyRows().filter((r) => r.classList.contains('blurred'))).toHaveLength(5);
+      expect(focusButton('Bravo')).toHaveAttribute('aria-pressed', 'true');
+
+      await user.click(focusButton('Delta'));
+      expect(row('Delta')).not.toHaveClass('blurred');
+      expect(row('Bravo')).toHaveClass('blurred');
+      expect(bodyRows().filter((r) => r.classList.contains('blurred'))).toHaveLength(5);
+
+      await user.click(focusButton('Delta'));
+      expect(blurredNames()).toEqual([]);
+      expect(bodyRows()).toHaveLength(6);
+    });
+
+    it('is UI-only: no extra API request', async () => {
+      const user = userEvent.setup();
+      render(<App />);
+      await screen.findByRole('table');
+      const fetchMock = vi.mocked(fetch);
+      const calls = fetchMock.mock.calls.length;
+      await user.click(focusButton('Bravo'));
+      await user.click(focusButton('Bravo'));
+      expect(fetchMock.mock.calls).toHaveLength(calls);
+    });
+  });
+
+  it('shows compact headers while keeping the original names in the tooltip', async () => {
+    render(<App />);
+    await screen.findByRole('table');
+    const headers = within(screen.getByRole('table').querySelector('thead')!).getAllByRole(
+      'columnheader',
+    );
+    const labels = headers.map((h) => h.textContent);
+    expect(labels).toEqual(
+      expect.arrayContaining(['Tarea 01', 'Tarea 02', 'Tarea 03', 'Examen 1', 'Examen 2', 'A/P']),
+    );
+    expect(screen.getByRole('columnheader', { name: 'Examen 1' })).toHaveAttribute(
+      'title',
+      expect.stringContaining('Examen 1'),
+    );
+    // the source data is untouched
+    expect(complete.columns.map((c) => c.name)).toContain('Tarea 04 (not counted)');
+  });
+});
+
+describe('compactActivityLabel', () => {
+  it('maps position within the block to the compact label', () => {
+    expect(compactActivityLabel('exams', 0)).toBe('Examen 1');
+    expect(compactActivityLabel('exams', 1)).toBe('Examen 2');
+    expect(compactActivityLabel('tasks', 0)).toBe('Tarea 01');
+    expect(compactActivityLabel('tasks', 11)).toBe('Tarea 12');
+    expect(compactActivityLabel('participation', 0)).toBe('A/P');
   });
 });
