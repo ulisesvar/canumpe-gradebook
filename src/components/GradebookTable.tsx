@@ -1,10 +1,17 @@
+import { useState } from 'react';
 import type {
   ActivityColumn,
   ActivityGrade,
   GradebookView,
   StudentGradeRow,
 } from '../domain/buildGradebook';
-import { formatContribution, formatGrade, formatScore, NOT_GRADED } from '../domain/format';
+import {
+  compactActivityLabel,
+  formatContribution,
+  formatGrade,
+  formatScore,
+  NOT_GRADED,
+} from '../domain/format';
 import type { SortDirection, SortKey } from '../domain/students';
 import { FinalValue } from './FinalCell';
 
@@ -42,7 +49,8 @@ function GradeCell({ activity }: { activity: ActivityGrade }) {
   );
 }
 
-function ActivityHeader({ column }: { column: ActivityColumn }) {
+/** `label` is the compact display text; the original name stays in the tooltip. */
+function ActivityHeader({ column, label }: { column: ActivityColumn; label?: string }) {
   const note = column.counts === false ? ' — does not count toward the grade' : '';
   return (
     <th
@@ -50,7 +58,7 @@ function ActivityHeader({ column }: { column: ActivityColumn }) {
       className={column.counts === false ? 'excluded' : undefined}
       title={`${column.name} (max ${formatGrade(column.maxGrade)}${column.activityType ? `, ${column.activityType}` : ''})${note}`}
     >
-      {column.name}
+      {label ?? column.name}
       {column.counts === false ? ' *' : ''}
     </th>
   );
@@ -66,6 +74,9 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
       {sortKey === k ? (sortDirection === 'asc' ? ' ▲' : ' ▼') : ''}
     </button>
   );
+  // Purely visual: which student row stays sharp while the others are blurred.
+  const [focusedId, setFocusedId] = useState<number | null>(null);
+  const activeFocusId = rows.some((r) => r.studentId === focusedId) ? focusedId : null;
   const taskSpan = tasks.length + 2;
   const examSpan = exams.length + 2;
 
@@ -101,18 +112,30 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
             </th>
           </tr>
           <tr>
-            {tasks.map((c) => (
-              <ActivityHeader key={c.activityId} column={c} />
+            {tasks.map((c, i) => (
+              <ActivityHeader
+                key={c.activityId}
+                column={c}
+                label={compactActivityLabel('tasks', i)}
+              />
             ))}
             <th scope="col">Tasks average</th>
             <th scope="col">Tasks contribution</th>
-            {exams.map((c) => (
-              <ActivityHeader key={c.activityId} column={c} />
+            {exams.map((c, i) => (
+              <ActivityHeader
+                key={c.activityId}
+                column={c}
+                label={compactActivityLabel('exams', i)}
+              />
             ))}
             <th scope="col">Exams average</th>
             <th scope="col">Exams contribution</th>
-            {participation.map((c) => (
-              <ActivityHeader key={c.activityId} column={c} />
+            {participation.map((c, i) => (
+              <ActivityHeader
+                key={c.activityId}
+                column={c}
+                label={compactActivityLabel('participation', i)}
+              />
             ))}
             <th scope="col">Average</th>
             <th scope="col">Contribution</th>
@@ -128,11 +151,30 @@ export function GradebookTable({ view, rows, sortKey, sortDirection, onSort, onS
             </tr>
           )}
           {rows.map((row) => (
-            <tr key={row.studentId}>
+            <tr
+              key={row.studentId}
+              className={
+                activeFocusId !== null && activeFocusId !== row.studentId ? 'blurred' : undefined
+              }
+            >
               <th scope="row" className="sticky-1 student">
-                <button type="button" className="link" onClick={() => onSelect(row.studentId)}>
-                  {row.fullName}
-                </button>
+                <div className="student-cell">
+                  <button type="button" className="link" onClick={() => onSelect(row.studentId)}>
+                    {row.fullName}
+                  </button>
+                  <button
+                    type="button"
+                    className="focus-toggle"
+                    aria-pressed={activeFocusId === row.studentId}
+                    aria-label={`Focus on ${row.fullName}`}
+                    title={`Focus on ${row.fullName}`}
+                    onClick={() =>
+                      setFocusedId(activeFocusId === row.studentId ? null : row.studentId)
+                    }
+                  >
+                    <span aria-hidden="true">◎</span>
+                  </button>
+                </div>
               </th>
               <td className="sticky-2">{row.accountNumber}</td>
               {row.tasks.activities.map((a) => (

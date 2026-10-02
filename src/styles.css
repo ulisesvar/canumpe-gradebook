@@ -101,7 +101,7 @@ table.gradebook {
 }
 .gradebook th,
 .gradebook td {
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
@@ -117,6 +117,40 @@ table.gradebook {
 }
 .gradebook thead tr:nth-child(2) th {
   top: 30px;
+  white-space: normal;
+  max-width: 76px;
+  font-size: 12px;
+}
+.gradebook td,
+.gradebook th {
+  transition: filter 0.2s ease;
+}
+.gradebook tbody tr.blurred th,
+.gradebook tbody tr.blurred td {
+  filter: blur(6px);
+  user-select: none;
+}
+.student-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+button.focus-toggle {
+  flex: none;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+button.focus-toggle[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 .gradebook .sticky-1,
 .gradebook .sticky-2 {
@@ -125,12 +159,12 @@ table.gradebook {
 }
 .gradebook .sticky-1 {
   left: 0;
-  min-width: 240px;
+  min-width: 220px;
   text-align: left;
 }
 .gradebook .sticky-2 {
-  left: 240px;
-  min-width: 90px;
+  left: 220px;
+  min-width: 80px;
   box-shadow: 2px 0 0 var(--line);
 }
 .gradebook thead .sticky-1,

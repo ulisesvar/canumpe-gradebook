@@ -21,3 +21,16 @@ export function formatWeight(weight: Grade): string {
 export function formatContribution(contribution: Grade, weight: Grade): string {
   return `${formatScore(contribution)} / ${weight === null ? NOT_GRADED : weight}`;
 }
+
+/**
+ * Compact header label for an activity column; the full name stays in the header tooltip.
+ * `position` is the 0-based position of the column within its block.
+ */
+export function compactActivityLabel(
+  block: 'tasks' | 'exams' | 'participation',
+  position: number,
+): string {
+  if (block === 'participation') return 'A/P';
+  if (block === 'exams') return `Examen ${position + 1}`;
+  return `Tarea ${String(position + 1).padStart(2, '0')}`;
+}
